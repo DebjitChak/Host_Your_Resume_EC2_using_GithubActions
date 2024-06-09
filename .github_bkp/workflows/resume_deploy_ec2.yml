@@ -1,0 +1,92 @@
+name: 'Terraform'
+# test command push
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Configure AWS credentials for Terraform
+    - name: Configure AWS Credentials
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.TF_VAR_aws_access_key }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_VAR_aws_secret_key }}
+      run: |
+        mkdir -p ~/.aws
+        echo "[default]" > ~/.aws/credentials
+        echo "aws_access_key_id=${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
+        echo "aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    #- name: Terraform Format
+    #  run: terraform fmt -check
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      run: terraform plan -input=false -var="aws_access_key=${{ secrets.TF_VAR_aws_access_key }}" -var="aws_secret_key=${{ secrets.TF_VAR_aws_secret_key }}" -var="username=${{ secrets.TF_VAR_username }}" -var="password=${{ secrets.TF_VAR_password }}"
+
+    # On push to "main", build or change infrastructure according to Terraform configuration files
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      env:
+        TF_VAR_username: ${{ secrets.TF_VAR_username }}
+        TF_VAR_password: ${{ secrets.TF_VAR_password }}
+      run: terraform apply -auto-approve -input=false -var="aws_access_key=${{ secrets.TF_VAR_aws_access_key }}" -var="aws_secret_key=${{ secrets.TF_VAR_aws_secret_key }}" -var="username=${{ secrets.TF_VAR_username }}" -var="password=${{ secrets.TF_VAR_password }}"
+
+    - name: Output EC2 Public IP
+      id: output_ip
+      run: |
+        echo "EC2_PUBLIC_IP=$(terraform output -raw public_ip)" >> $GITHUB_ENV
+
+    
+
+  deploy:
+      name: Deploy to EC2 on main branch push
+      runs-on: ubuntu-latest
+      needs: terraform
+      
+      steps:
+        - name: Checkout the files
+          uses: actions/checkout@v2
+      
+        - name: Get EC2 Public IP
+          run: echo "EC2_PUBLIC_IP=${{ steps.output_ip.outputs.public_ip }}" >> $GITHUB_ENV
+      
+        - name: Print EC2 Public IP for Debugging
+          run: echo "EC2 Public IP is ${{ env.EC2_PUBLIC_IP }}"
+      
+        - name: Executing remote SSH commands using username and password
+          uses: appleboy/ssh-action@master
+          with:
+              host: ${{ env.EC2_PUBLIC_IP }}
+              username: ${{ secrets.TF_VAR_username }}
+              password: ${{ secrets.TF_VAR_password }} 
+              script: |
+                  sudo apt-get -y update
+                  sudo apt-get install -y apache2
+                  sudo systemctl start apache2
+                  sudo systemctl enable apache2
+                  cd /home/${{ secrets.TF_VAR_username }}
+                  sudo mv * /var/www/html
