@@ -12,5 +12,4 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: check variable name
-      run: echo $GITHUB_SERVER_URL
+    - run: echo $GITHUB_SERVER_URL
