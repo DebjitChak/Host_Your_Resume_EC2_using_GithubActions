@@ -1,15 +1,12 @@
-name: CI
-
+name: Test
 on:
-  push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - main
+  push
+
+env:
+  my_name: "Debjit Chakra"
 
 jobs:
-  build:
+  test_job:
     runs-on: ubuntu-latest
     steps:
-    - run: echo $GITHUB_SERVER_URL
+      - run: echo "Testing my workflow variable $my_name"

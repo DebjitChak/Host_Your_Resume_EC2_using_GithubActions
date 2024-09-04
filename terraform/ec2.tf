@@ -44,6 +44,10 @@ resource "aws_instance" "web" {
   }
 }
 
+resource "aws_key_pair" "dc-access-ec2-ssh" {
+  key_name   = "dc-access-ec2-ssh"
+  public_key = file("~/.ssh/my-key.pub")
+}
 # output "public_ip" {
 #   value = aws_instance.web.public_ip
 # }
