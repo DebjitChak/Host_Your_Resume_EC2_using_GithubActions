@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent{
+        label 'local-docker-builder'
+    }
 
     environment {
         DOCKER_IMAGE = '08041998/resume-builder'
