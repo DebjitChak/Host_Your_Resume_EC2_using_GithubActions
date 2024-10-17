@@ -1,6 +1,11 @@
 pipeline {
-    agent{
-        label 'built-in'
+    agent {
+        cloud {
+            // Specify the cloud configuration
+            docker {
+                label 'local-docker-builder'  // The label for your Kubernetes agent
+            }
+        }
     }
 
     environment {
