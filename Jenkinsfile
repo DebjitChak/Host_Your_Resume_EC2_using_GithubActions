@@ -1,6 +1,6 @@
 pipeline {
     agent{
-        label 'local-docker-builder'
+        label 'built-in'
     }
 
     environment {
