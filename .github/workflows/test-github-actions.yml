@@ -10,3 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Testing my workflow variable $my_name"
+  test_job2:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "testing a new workflow job2"
