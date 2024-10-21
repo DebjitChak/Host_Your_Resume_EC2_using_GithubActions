@@ -9,7 +9,7 @@ jobs:
   test_job:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Testing my workflow variable ${my_name}"
+      - run: echo "Testing my workflow variable ${{env.my_name}}"
   test_job2:
     runs-on: ubuntu-latest
     steps:
