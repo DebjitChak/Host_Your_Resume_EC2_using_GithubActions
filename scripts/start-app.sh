@@ -1,6 +1,6 @@
 #!/bin/bash
 old_tag="v1.0"
-new_tag=""
+new_tag="v1.0"
 old_image="568245924140.dkr.ecr.us-west-2.amazonaws.com/devops-repo-dc:${old_tag}"
 new_image="568245924140.dkr.ecr.us-west-2.amazonaws.com/devops-repo-dc:${new_tag}"
 sudo -i
