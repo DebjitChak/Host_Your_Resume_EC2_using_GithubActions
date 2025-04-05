@@ -14,4 +14,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          kubectl get pods
+          kubectl --kubeconfig=/home/hackerguru/.kube/config get pods
