@@ -13,4 +13,5 @@ jobs:
   test_job2:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "testing a new workflow job2"
+      - run: |
+          kubectl get pods
