@@ -6,12 +6,12 @@ env:
   my_name: "Debjit Chakra"
 
 jobs:
-  test_job:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Testing my workflow variable ${{env.my_name}}"
+  # test_job:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: echo "Testing my workflow variable ${{env.my_name}}"
   test_job2:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     steps:
       - run: |
           ls -l /home/hackerguru/.kube
